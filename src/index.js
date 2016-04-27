@@ -12,16 +12,20 @@ r.connect({host: 'localhost', port: 28015}, (err, conn) => {
 
   const examples = fs.readdirSync(EXAMPLES_DIR).map((name) => path.join(EXAMPLES_DIR, name));
 
-  const selectedExample = (process.argv[2] || '').replace(/'/g, '');
+  const selectedExamples = process.argv.slice(2).map((x) => x.replace(/'/g, ''));
 
   let selected = examples;
-  if (selectedExample) {
-    const selectedFile = examples.find((name) => path.basename(name).startsWith(selectedExample));
-    if (selectedFile) {
-      selected = [selectedFile];
-    }
-    else {
-      console.error('Could not find:', selectedExample);
+  if (selectedExamples && selectedExamples.length) {
+    const selectedFiles = selectedExamples.reduce((files, ex) => {
+      const file = examples.find((name) => path.basename(name).startsWith(ex));
+      if (!file) {
+        console.error('Could not find:', ex);
+        return files;
+      }
+      return [...files, file];
+    }, []);
+    if (selectedFiles && selectedFiles) {
+      selected = selectedFiles;
     }
   }
 
