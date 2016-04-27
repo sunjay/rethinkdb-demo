@@ -10,12 +10,14 @@ module.exports = {
 
 function setup() {
   return connect().then((conn) => {
-    r.dbCreate(DB).run(conn, (err, result) => {
-      if (!err) {
-        console.log('chat database created');
-      }
-      const tables = ['message', 'user'];
-      return Promise.all(tables.map(createTable.bind(null, conn)));
+    return new Promise((resolve, reject) => {
+      r.dbCreate(DB).run(conn, (err, result) => {
+        if (!err) {
+          console.log('chat database created');
+        }
+        const tables = ['message', 'user'];
+        resolve(Promise.all(tables.map(createTable.bind(null, conn))));
+      });
     });
   });
 };
