@@ -34,12 +34,16 @@ function loop(conn) {
       return handleCommand(conn, message);
     }
 
-    return db.send(conn, name, message).then(() => {
-      console.log('OK');
-    });
+    return sendMessage(conn, message);
   }).then(() => scheduleLoop(conn)).catch((error) => {
     console.error(error);
     scheduleLoop(conn);
+  });
+}
+
+function sendMessage(conn, message) {
+  return db.send(conn, name, message).then(() => {
+    console.log('OK');
   });
 }
 
@@ -49,6 +53,7 @@ function handleCommand(conn, command) {
     award: awardBadge,
     help: printHelp,
     badges: countBadges,
+    spam: spam,
   }[commandName];
 
   if (!handler) {
@@ -105,6 +110,12 @@ function printBadges(badgeCounts) {
   }
 
   console.log(output.trim());
+}
+
+function spam(conn, arg, i = 0) {
+  return sendMessage(conn, 'spam' + i).then(() => {
+    return spam(conn, arg, i + 1);
+  });
 }
 
 function promptMessage() {
