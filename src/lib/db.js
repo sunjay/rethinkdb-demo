@@ -8,8 +8,11 @@ module.exports = {
   messagesFeed,
   setup,
   send,
+  award,
 };
 
+// Creates a change feed that returns each new message
+// Initially returns all messages
 function messagesFeed(conn) {
   return r.db('chat').table('messages')
   	.changes({includeInitial: true})('new_val')
@@ -29,6 +32,16 @@ function send(conn, sender, message) {
         message: message,
       }
     ]).run(conn);
+  });
+}
+
+// Awards a badge to the given user
+function award(conn, name, badge) {
+  return getUser(conn, name).then((user) => {
+    return r.db(DB).table('users')
+      .get(user.id).update({
+        badges: r.row('badges').append(badge)
+      }).run(conn);
   });
 }
 
