@@ -5,16 +5,26 @@ const r = require('rethinkdb');
 const DB = 'chat';
 
 module.exports = {
+  messagesFeed,
   setup,
   send,
 };
+
+function messagesFeed(conn) {
+  return r.db('chat').table('messages')
+  	.changes({includeInitial: true})('new_val')
+    .eqJoin('user_id', r.db('chat').table('users'))
+    .pluck({left: true, right: {name: true}})
+    .zip()
+    .run(conn);
+}
 
 // Sends a message from the given user to the given user
 function send(conn, sender, message) {
   return getUser(conn, sender).then((user) => {
     return r.db(DB).table('messages').insert([
       {
-        sender: user.id,
+        user_id: user.id,
         created: new Date(),
         message: message,
       }

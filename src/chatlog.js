@@ -1,10 +1,19 @@
+const chalk = require('chalk');
+
 const db = require('./lib/db');
 
-const name = process.argv[2];
-if (!name) {
-  console.error('No name');
-  process.exit(1);
-}
-
 db.setup().then((conn) => {
-}).catch(console.error.bind(console));
+  db.messagesFeed(conn).then((cursor) => {
+    cursor.eachAsync(logMessage);
+  });
+});
+
+function logMessage({created, message, name}) {
+  const time = `${created.getHours()}:${created.getMinutes()}:${created.getSeconds()}`;
+
+  let output = '';
+  output += chalk.blue(`[${time}]`);
+  output += chalk.green(`[${name}] `);
+  output += message;
+  console.log(output);
+}
