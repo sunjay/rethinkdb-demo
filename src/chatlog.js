@@ -8,15 +8,17 @@ db.setup().then((conn) => {
   }).catch(console.error);
 
   db.badgesFeed(conn).then((cursor) => {
-    cursor.eachAsync(({old_val, new_val}) => {
-      old_val = old_val || {changes: []};
-      const awarded = difference(new_val.badges, old_val.badges);
-      for (let badge of awarded) {
-        logBadge(new_val.name, badge);
-      }
-    }).catch(console.error);
+    cursor.eachAsync(logNewBadges).catch(console.error);
   });
 }).catch(console.error);
+
+function logNewBadges({old_val, new_val}) {
+  old_val = old_val || {badges: []};
+  const awarded = difference(new_val.badges, old_val.badges);
+  for (let badge of awarded) {
+    logBadge(new_val.name, badge);
+  }
+}
 
 function logBadge(name, badge) {
   let output = '';
@@ -38,8 +40,7 @@ function logMessage({created, message, name}) {
   console.log(output);
 }
 
-// Returns every item in a that is not in b
-function difference(a, b) {
-  b = new Set(b);
-  return a.filter((x) => !b.has(x));
+// Returns the new items added to newer
+function difference(newer, older) {
+  return newer.slice(older.length);
 }
