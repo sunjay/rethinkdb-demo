@@ -6,6 +6,7 @@ const DB = 'chat';
 
 module.exports = {
   messagesFeed,
+  badgesFeed,
   setup,
   send,
   award,
@@ -19,6 +20,14 @@ function messagesFeed(conn) {
     .eqJoin('user_id', r.db('chat').table('users'))
     .pluck({left: true, right: {name: true}})
     .zip()
+    .run(conn);
+}
+
+// Creates a change feed that returns each new badge
+// Initially returns all badges
+function badgesFeed(conn) {
+  return r.db('chat').table('users')
+    .changes()
     .run(conn);
 }
 
