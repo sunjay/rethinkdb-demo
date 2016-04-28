@@ -5,11 +5,10 @@
   "main": "index.js",
   "scripts": {
     "log": "./node_modules/.bin/babel-node ./src/chatlog.js",
-    "search": "./node_modules/.bin/babel-node ./src/search.js",
     "send": "./node_modules/.bin/babel-node ./src/send.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^1.1.3",
     "colors": "^1.1.2",

@@ -1,8 +1,15 @@
 # RethinkDB Demo App
 
-Simple realtime messaging application
+Simple realtime persistent messaging application
 
-- Search for profile by name (querying example)
 - Realtime messaging (modeling relationships by linking documents with multiple tables)
 - Profile badges (modeling relationships with embedded arrays)
-- Displaying last message time (accessing nested fields)
+
+## Usage
+Run the chat log in one terminal and then open another terminal
+for each username you want to send messages from. The chat log
+will automatically update whenever a new message is sent. You
+can even use multiple chat logs if you like.
+
+- `npm run log` - Prints out all existing messages and then continuously outputs new messages as they arrive
+- `npm run send [username]` - Sends messages as a username, user is created automatically when the first message is sent
