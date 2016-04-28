@@ -10,12 +10,22 @@ module.exports = {
   setup,
   send,
   award,
+  badgeFrequencies,
 };
+
+// Returns an object representing the badges and their frequencies for all users
+function badgeFrequencies(conn) {
+  return r.db(DB).table('users')
+    .concatMap((user) => user('badges'))
+    .group((badge) => badge)
+    .count()
+    .run(conn);
+}
 
 // Creates a change feed that returns each new message
 // Initially returns all messages
 function messagesFeed(conn) {
-  return r.db('chat').table('messages')
+  return r.db(DB).table('messages')
   	.changes({includeInitial: true})('new_val')
     .eqJoin('user_id', r.db('chat').table('users'))
     .pluck({left: true, right: {name: true}})
@@ -26,7 +36,7 @@ function messagesFeed(conn) {
 // Creates a change feed that returns each new badge
 // Initially returns all badges
 function badgesFeed(conn) {
-  return r.db('chat').table('users')
+  return r.db(DB).table('users')
     .changes()
     .run(conn);
 }

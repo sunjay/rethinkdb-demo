@@ -1,6 +1,7 @@
-const db = require('./lib/db');
-
+const chalk = require('chalk');
 const prompt = require('prompt');
+
+const db = require('./lib/db');
 
 const name = process.argv[2];
 if (!name) {
@@ -47,6 +48,7 @@ function handleCommand(conn, command) {
   const handler = {
     award: awardBadge,
     help: printHelp,
+    badges: countBadges,
   }[commandName];
 
   if (!handler) {
@@ -73,10 +75,36 @@ function awardBadge(conn, [username, badge, ...extra]) {
   return db.award(conn, username, badge);
 }
 
+function countBadges(conn, args) {
+  if (args && args.length) {
+    console.error('too many arguments');
+    return;
+  }
+
+  return db.badgeFrequencies(conn).then((cursor) => {
+    return cursor.toArray().then((freq) => {
+      printBadges(freq);
+    });
+  });
+}
+
 function printHelp() {
   console.log('/help - print this help');
   console.log('/award [username] [badge] - award a badge to a user');
+  console.log('/badges - return how many of each badge has been awarded')
   return Promise.resolve();
+}
+
+function printBadges(badgeCounts) {
+  let output = '';
+  for (let {group, reduction} of badgeCounts) {
+    output += chalk.yellow(group);
+    output += ': ';
+    output += reduction;
+    output += ' ';
+  }
+
+  console.log(output.trim());
 }
 
 function promptMessage() {
@@ -84,7 +112,7 @@ function promptMessage() {
     prompt.get({
       properties: {
         message: {
-          description: '>',
+          description: chalk.blue('>'),
         },
       },
     }, (err, {message = null}) => {
